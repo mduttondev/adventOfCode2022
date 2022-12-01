@@ -4,7 +4,7 @@ def read_input
   sums = []
 
   accumulator = 0
-  File.readlines('/Users/XSM898/Desktop/day_1_input.txt').each do |line|
+  File.readlines('./day_1_input.txt').each do |line|
     if line.to_s.strip.empty?
       sums.push(accumulator)
       accumulator = 0
