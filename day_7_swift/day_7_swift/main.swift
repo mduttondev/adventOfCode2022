@@ -17,6 +17,8 @@ let fileContent = try! String(contentsOfFile: inputFileUrl.relativePath).split(s
 let lines = fileContent.map{String($0)}
 
 let maxFileSize = 100_000
+let updateSpaceRequired = 30_000_000
+let totalDiskSpace = 70_000_000
 
 func createFileSystem(from input: [String]) -> Directory {
     let rootDir = Directory(name: "/", parent: nil)
@@ -48,7 +50,7 @@ func createFileSystem(from input: [String]) -> Directory {
                 let dir = Directory(name: contentParts[1], parent: currentLocation)
                 currentLocation.childDirectories.append(dir)
             } else {
-                let file = File(name: contentParts[1], size: Double(contentParts[0])!)
+                let file = File(name: contentParts[1], size: Int(contentParts[0])!)
                 currentLocation.files.append(file)
             }
         } else{
@@ -59,9 +61,9 @@ func createFileSystem(from input: [String]) -> Directory {
     return rootDir
 }
 
-func getDirectoriesUnderMaxSize(from directory: Directory, with sizeLimit: Double) -> Double {
+func getDirectoriesUnderMaxSize(from directory: Directory, with sizeLimit: Int) -> Int {
 
-    var accum: Double = 0
+    var accum = 0
     let currentDirSize = directory.getSize()
 
     if currentDirSize <= sizeLimit {
@@ -75,9 +77,35 @@ func getDirectoriesUnderMaxSize(from directory: Directory, with sizeLimit: Doubl
     return accum
 }
 
+func findDeletableDirectories(from directory: Directory, with minSizeNeeded: Int) -> [Directory] {
+
+    var directoriesLargeEnough = [Directory]()
+
+    let currentDirSize = directory.getSize()
+
+    if currentDirSize > minSizeNeeded {
+        directoriesLargeEnough.append(directory)
+    }
+
+    for dir in directory.childDirectories {
+        let largeEnough = findDeletableDirectories(from: dir, with: minSizeNeeded)
+        directoriesLargeEnough.append(contentsOf: largeEnough)
+    }
+
+    let smallestOverMax = directoriesLargeEnough.sorted { $0.getSize() > $1.getSize() }
+
+    return smallestOverMax
+}
+
 
 
 let fileTree = createFileSystem(from: lines)
-let total = getDirectoriesUnderMaxSize(from: fileTree, with: Double(maxFileSize))
-print(total)
+let total = getDirectoriesUnderMaxSize(from: fileTree, with: maxFileSize)
 
+let spaceNeeded = abs((totalDiskSpace - fileTree.getSize()) - updateSpaceRequired)
+let deletableDirectoriesOfSize = findDeletableDirectories(from: fileTree, with: spaceNeeded).sorted {
+    $0.getSize() < $1.getSize()
+}
+
+
+print(deletableDirectoriesOfSize.first!.getSize())

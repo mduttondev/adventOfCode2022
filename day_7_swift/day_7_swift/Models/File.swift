@@ -10,7 +10,7 @@ import Foundation
 struct File: Entity {
     let type = EntityType.file
     let name: String
-    let size: Double
+    let size: Int
 }
 
 extension File: Hashable {

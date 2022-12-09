@@ -16,12 +16,12 @@ class Directory: Entity {
     var files = [File]()
     var childDirectories = [Directory]()
 
-    func getSize() -> Double {
+    func getSize() -> Int {
         if childDirectories.isEmpty {
             return sizeForFiles
         }
 
-        var childDirectoriesSize: Double = 0
+        var childDirectoriesSize = 0
         for childDirectory in childDirectories {
             childDirectoriesSize += childDirectory.getSize()
         }
@@ -29,8 +29,8 @@ class Directory: Entity {
         return childDirectoriesSize + sizeForFiles
     }
 
-    private var sizeForFiles: Double {
-        var size: Double = 0
+    private var sizeForFiles: Int {
+        var size = 0
         for file in files {
             size += file.size
         }
