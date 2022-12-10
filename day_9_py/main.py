@@ -20,24 +20,28 @@ def read_file(path: str) -> list:
 
 def process_instructions(instructions: list) -> int:
     head = [0, 0]
-    tail = [0, 0]
+    tails = [[0, 0]] * 9  # 9 tails to chase each other
 
-    tail_pos_visited = []
+    tail_9_pos_visited = []
 
     for move in instructions:
-        move_parts = move.split(" ")
+        move_parts = move.split()
         direction = Direction(move_parts[0])
         count = int(move_parts[1])
 
-        for i in range(count):
-            adjust_position(head, direction)
-            if requires_tail_move(head, tail):
-                tail = reposition_tail(head, tail)
-            tail_pos_visited.append(f"{tail[0]}, {tail[1]}")
+        for _ in range(count):
+            head = adjust_position(head, direction)
 
-    unique = list(set(tail_pos_visited))
-    print(len(unique))
-    return len(unique)
+            for idx, follower in enumerate(tails):
+                leader = head if idx == 0 else tails[idx-1]
+
+                if requires_tail_move(leader, follower):
+                    tails[idx] = reposition_tail(leader, follower)
+
+                if idx == 8:
+                    tail_9_pos_visited.append((follower[0], follower[1]))  # tuples of (x,y) visited positions
+
+    return int(len(set(tail_9_pos_visited)))
 
 
 def reposition_tail(head, tail) -> list:
@@ -69,6 +73,7 @@ def reposition_tail(head, tail) -> list:
 
     return [tail_x, tail_y]
 
+
 def requires_tail_move(head, tail) -> bool:
     head_x = head[0]
     head_y = head[1]
@@ -91,10 +96,12 @@ def adjust_position(pos: list, direction) -> list:
     val = pos[idx]
     val += 1 * multiplier
     pos[idx] = val
+    return pos
 
 
 if __name__ == '__main__':
     commands = read_file('./input.txt')
     # commands = read_file('./demo.txt')
-    visited2 = process_instructions(commands)
-    print(commands)
+    # commands = read_file('./demo2.txt')
+    visited = process_instructions(commands)
+    print(visited)
