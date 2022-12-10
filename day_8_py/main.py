@@ -26,7 +26,9 @@ def interior_visible_trees(grid) -> int:
         if idx == 0 or idx == len(grid) - 1:
             continue
 
-        for col, number in enumerate(row): # Check left and right
+        # Check left and right
+        for col, number in enumerate(row):
+            vis = False
             if col == 0 or col == len(row) - 1:
                 continue
             left = row[:col]
@@ -37,6 +39,7 @@ def interior_visible_trees(grid) -> int:
 
             above = []
             below = []
+            # Check above and below
             for i, group in enumerate(grid):
                 if i == idx:
                     continue
@@ -50,17 +53,67 @@ def interior_visible_trees(grid) -> int:
 
             if vis:
                 vis_trees += 1
-            vis = False
 
     return vis_trees
+
+def visible_distance(num, arr, reverse) -> int:
+    vis = 0
+    if reverse:
+        for e in reversed(arr):
+            if e >= num:
+                vis += 1
+                break
+            vis += 1
+    else:
+        for e in arr:
+            if e >= num:
+                vis += 1
+                break
+            vis += 1
+
+    return vis
+
+def location_score(grid) -> int:
+    high_vis_score = 0
+
+    for idx, row in enumerate(grid):
+        for col, number in enumerate(row):
+            left = row[:col]
+            right = row[col+1:]
+            vis_left = visible_distance(number, left, True)
+            vis_right = visible_distance(number, right, False)
+
+            above = []
+            below = []
+            for i, group in enumerate(grid):
+                if i == idx:
+                    continue
+                if i < idx:
+                    above.append(group[col])
+                if i > idx:
+                    below.append(group[col])
+            vis_up = visible_distance(number, above, True)
+            vis_down = visible_distance(number, below, False)
+
+            score = vis_left * vis_right * vis_up * vis_down
+
+            if score > high_vis_score:
+                high_vis_score = score
+
+    return high_vis_score
 
 
 if __name__ == '__main__':
     matrix = create_matrix('./input.txt')
     # matrix = create_matrix('./demo.txt')
+
     edge_trees = grid_edges(matrix)
+
     interior_trees = interior_visible_trees(matrix)
 
-    print(f"{edge_trees + interior_trees} Trees Visible")
+    high_location_score = location_score(matrix)
+
+    print(f"{edge_trees + interior_trees} trees visible from the outside")
+    print(f"{high_location_score} is the highest location score present")
 
 
