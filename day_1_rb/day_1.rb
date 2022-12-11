@@ -4,7 +4,7 @@ sums = []
 
 accumulator = 0
 
-File.readlines("#{Dir.getwd}/day_1_input.txt").each do |line|
+File.readlines("#{Dir.getwd}/day_1_rb/day_1_input.txt").each do |line|
   if line.to_s.strip.empty?
     sums.push(accumulator)
     accumulator = 0
