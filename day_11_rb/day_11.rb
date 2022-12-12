@@ -68,12 +68,12 @@ end
 inspections = {}
 all_monkeys.each_with_index { |_, i| inspections[i] = 0 }
 
-20.times do
+10_000.times do
   all_monkeys.each_with_index do |monkey, idx|
     monkey.items.each do |item|
       inspections[idx] += 1
       val = monkey.operation_value == 'old' ? item : monkey.operation_value.to_i
-      new_value = monkey.operation.call(item, val) / 3
+      new_value = monkey.operation.call(item, val)
       test = (new_value % monkey.test_divisor).zero?
       if test
         pos = monkey.test_positive_monkey
@@ -87,4 +87,5 @@ all_monkeys.each_with_index { |_, i| inspections[i] = 0 }
   end
 end
 
+puts inspections
 puts inspections.values.sort.reverse.first(2).inject(:*)
