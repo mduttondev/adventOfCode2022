@@ -66,14 +66,18 @@ seperate_objects.each do |object|
 end
 
 inspections = {}
-all_monkeys.each_with_index { |_, i| inspections[i] = 0 }
+big_mod = 1
+all_monkeys.each_with_index do |mon, i|
+  inspections[i] = 0
+  big_mod *= mon.test_divisor
+end
 
 10_000.times do
   all_monkeys.each_with_index do |monkey, idx|
     monkey.items.each do |item|
       inspections[idx] += 1
       val = monkey.operation_value == 'old' ? item : monkey.operation_value.to_i
-      new_value = monkey.operation.call(item, val)
+      new_value = monkey.operation.call(item, val) % big_mod
       test = (new_value % monkey.test_divisor).zero?
       if test
         pos = monkey.test_positive_monkey
